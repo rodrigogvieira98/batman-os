@@ -36,24 +36,24 @@ Uma especificação de arquitetura sem mapeamento físico corre o risco de perma
 
 ```mermaid
 flowchart TB
-    subgraph Kernel Service
+    subgraph KS["Kernel Service"]
         MR[Mission Runtime]
         PE[Planning Engine]
         DE[Decision Engine]
         WE[Workflow Engine]
         SC[Scheduler]
     end
-    subgraph Catalog Service
+    subgraph CS["Catalog Service"]
         CR[Capability Registry]
         PR[Playbook Registry]
         RR[Rule Registry]
     end
-    subgraph Execution Layer
+    subgraph EL["Execution Layer"]
         Op1[Operador 1<br/>processo isolado]
         Op2[Operador 2<br/>processo isolado]
         Op3[Operador N...]
     end
-    subgraph Governance Service
+    subgraph GS["Governance Service"]
         GE[Governance Engine]
         OE[Observability Engine]
         HR[Human Review UI/API]
@@ -63,11 +63,11 @@ flowchart TB
     OM[(Operational Memory<br/>banco analítico)]
     KG[(Knowledge Graph<br/>banco de grafo)]
 
-    Kernel Service --> ES
-    Kernel Service --> CR
-    Kernel Service --> Op1
-    Kernel Service --> Op2
-    Kernel Service --> Op3
+    KS --> ES
+    KS --> CR
+    KS --> Op1
+    KS --> Op2
+    KS --> Op3
     ES --> OM
     ES --> KG
     CR --> KG

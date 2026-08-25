@@ -24,6 +24,34 @@ A linter answers *"is this line wrong?"*. Batman OS answers *"is this repository
 developed in a way that will fail?"* — and treats its own answer as something that might
 be lying.
 
+```mermaid
+flowchart TB
+    R["target repository"] --> S["batman scan --root REPO"]
+    S --> E["283 deterministic rules<br/>security · infra · quality · debt · data"]
+    E --> D{"does the rule decide?"}
+    D -->|yes| V["finding with severity,<br/>evidence and path"]
+    D -->|"it does not"| L["escalation to the LLM<br/>the last resort, never the first"]
+    L --> V
+    V --> K{"zero score?"}
+    K -->|yes| CAN["the canary FAILS it<br/>silence is not approval"]
+    K -->|no| FO{"--fail-on high"}
+    FO -->|"any high or critical"| X["exit 1 — CI blocks"]
+    FO -->|"none"| OKN["exit 0"]
+
+    classDef det fill:#e0e7ff,stroke:#4f46e5,color:#1e1b4b
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef bad fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+    classDef ok fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef base fill:#f8fafc,stroke:#94a3b8,color:#0f172a
+    class E,V det
+    class D,K,FO gate
+    class CAN,X bad
+    class OKN ok
+    class R,S,L base
+```
+
+<sub>The LLM is the <b>last</b> step, never the first — and the canary runs before the exit code, because <code>0 findings</code> and <code>all clear</code> are indistinguishable.</sub>
+
 Two real defects the project found **in itself**, and the defenses born from them:
 
 **1. The gate could not see what was committed.** `pytest`, `mypy` and `ruff` run against
@@ -41,6 +69,26 @@ silence stopped counting as approval.
 That is the thesis of the whole project — **silent failure is the enemy**. A process that
 hangs is worse than one that drops work, because dropped work shows up in the report and
 hanging just looks like slowness.
+
+```mermaid
+flowchart LR
+    subgraph local["Local gate — pre-push"]
+        direction TB
+        T1["pytest"] --> T2["mypy src/ tests/"] --> T3["ruff check + ruff format --check"] --> T4["verificar_head_autocontido.sh<br/>materializes HEAD in an<br/>ephemeral worktree"]
+    end
+    subgraph ci["Gate in CI"]
+        direction TB
+        S1["the same four"] --> S2["batman scan --fail-on high"] --> S3["canary: a zero score FAILS"]
+    end
+    local -->|"only pushes if it passes"| ci
+
+    classDef step fill:#e0e7ff,stroke:#4f46e5,color:#1e1b4b
+    classDef guard fill:#fef3c7,stroke:#d97706,color:#78350f
+    class T1,T2,T3,S1,S2 step
+    class T4,S3 guard
+    style local fill:#f8fafc,stroke:#cbd5e1,color:#0f172a
+    style ci fill:#f8fafc,stroke:#cbd5e1,color:#0f172a
+```
 
 ## Architecture at a glance
 

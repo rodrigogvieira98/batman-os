@@ -24,6 +24,34 @@ Un linter responde *"¿esta línea está mal?"*. Batman OS responde *"¿este rep
 está desarrollando de una forma que va a fallar?"* — y trata su propia respuesta como
 algo que puede estar mintiendo.
 
+```mermaid
+flowchart TB
+    R["repositorio objetivo"] --> S["batman scan --root REPO"]
+    S --> E["283 reglas deterministas<br/>seguridad · infra · calidad · deuda · datos"]
+    E --> D{"¿la regla decide?"}
+    D -->|sí| V["hallazgo con severidad,<br/>evidencia y ruta"]
+    D -->|"no decide"| L["escalada al LLM<br/>el último recurso, nunca el primero"]
+    L --> V
+    V --> K{"¿marcador cero?"}
+    K -->|sí| CAN["el canario REPRUEBA<br/>el silencio no es aprobación"]
+    K -->|no| FO{"--fail-on high"}
+    FO -->|"hay high o critical"| X["salida 1 — el CI bloquea"]
+    FO -->|"ninguno"| OKN["salida 0"]
+
+    classDef det fill:#e0e7ff,stroke:#4f46e5,color:#1e1b4b
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef bad fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+    classDef ok fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef base fill:#f8fafc,stroke:#94a3b8,color:#0f172a
+    class E,V det
+    class D,K,FO gate
+    class CAN,X bad
+    class OKN ok
+    class R,S,L base
+```
+
+<sub>El LLM es el <b>último</b> paso, nunca el primero — y el canario corre antes del código de salida, porque <code>0 hallazgos</code> y <code>todo bien</code> son indistinguibles.</sub>
+
 Dos defectos reales que el proyecto encontró **en sí mismo**, y las defensas que
 nacieron de ellos:
 
@@ -43,6 +71,26 @@ aprobación.
 Esa es la tesis del proyecto entero — **el fallo silencioso es el enemigo**. Un proceso
 que se cuelga es peor que uno que descarta, porque el descarte aparece en el informe y
 el cuelgue parece lentitud.
+
+```mermaid
+flowchart LR
+    subgraph local["Compuerta local — pre-push"]
+        direction TB
+        T1["pytest"] --> T2["mypy src/ tests/"] --> T3["ruff check + ruff format --check"] --> T4["verificar_head_autocontido.sh<br/>materializa el HEAD en un<br/>worktree efímero"]
+    end
+    subgraph ci["Compuerta en CI"]
+        direction TB
+        S1["los mismos cuatro"] --> S2["batman scan --fail-on high"] --> S3["canario: marcador cero REPRUEBA"]
+    end
+    local -->|"solo empuja si pasa"| ci
+
+    classDef step fill:#e0e7ff,stroke:#4f46e5,color:#1e1b4b
+    classDef guard fill:#fef3c7,stroke:#d97706,color:#78350f
+    class T1,T2,T3,S1,S2 step
+    class T4,S3 guard
+    style local fill:#f8fafc,stroke:#cbd5e1,color:#0f172a
+    style ci fill:#f8fafc,stroke:#cbd5e1,color:#0f172a
+```
 
 ## Arquitectura de un vistazo
 

@@ -24,6 +24,34 @@ Um linter responde *"esta linha está errada?"*. O Batman OS responde *"este rep
 está sendo desenvolvido de um jeito que vai falhar?"* — e trata a própria resposta como
 algo que pode estar mentindo.
 
+```mermaid
+flowchart TB
+    R["repositório alvo"] --> S["batman scan --root REPO"]
+    S --> E["283 regras determinísticas<br/>segurança · infra · qualidade · dívida · dados"]
+    E --> D{"a regra decide?"}
+    D -->|sim| V["achado com severidade,<br/>evidência e caminho"]
+    D -->|"não decide"| L["escalação para LLM<br/>o último recurso, nunca o primeiro"]
+    L --> V
+    V --> K{"placar zero?"}
+    K -->|sim| CAN["canário REPROVA<br/>silêncio não é aprovação"]
+    K -->|não| FO{"--fail-on high"}
+    FO -->|"há high ou critical"| X["saída 1 — o CI barra"]
+    FO -->|"nenhum"| OKN["saída 0"]
+
+    classDef det fill:#e0e7ff,stroke:#4f46e5,color:#1e1b4b
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef bad fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+    classDef ok fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef base fill:#f8fafc,stroke:#94a3b8,color:#0f172a
+    class E,V det
+    class D,K,FO gate
+    class CAN,X bad
+    class OKN ok
+    class R,S,L base
+```
+
+<sub>O LLM é o <b>último</b> passo, nunca o primeiro — e o canário roda antes do código de saída, porque <code>0 achados</code> e <code>tudo certo</code> são indistinguíveis.</sub>
+
 Dois defeitos reais que o projeto encontrou **em si mesmo**, e as defesas que nasceram deles:
 
 **1. O portão não enxergava o que foi commitado.** `pytest`, `mypy` e `ruff` rodam na
@@ -41,6 +69,26 @@ portão que só olha o código de saída teria dado verde. A defesa é um canár
 Essa é a tese do projeto inteiro — **falha silenciosa é o inimigo**. Um processo que
 trava é pior que um que descarta, porque descarte aparece no relatório e trava parece
 lentidão.
+
+```mermaid
+flowchart LR
+    subgraph local["Portão local — pre-push"]
+        direction TB
+        T1["pytest"] --> T2["mypy src/ tests/"] --> T3["ruff check + ruff format --check"] --> T4["verificar_head_autocontido.sh<br/>materializa o HEAD num<br/>worktree efêmero"]
+    end
+    subgraph ci["Portão no CI"]
+        direction TB
+        S1["os mesmos quatro"] --> S2["batman scan --fail-on high"] --> S3["canário: placar zero REPROVA"]
+    end
+    local -->|"só empurra se passar"| ci
+
+    classDef step fill:#e0e7ff,stroke:#4f46e5,color:#1e1b4b
+    classDef guard fill:#fef3c7,stroke:#d97706,color:#78350f
+    class T1,T2,T3,S1,S2 step
+    class T4,S3 guard
+    style local fill:#f8fafc,stroke:#cbd5e1,color:#0f172a
+    style ci fill:#f8fafc,stroke:#cbd5e1,color:#0f172a
+```
 
 ## Arquitetura em uma passada
 
