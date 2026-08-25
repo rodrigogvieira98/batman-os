@@ -4,7 +4,7 @@
 # arquivos-marcadores (RUNNING/DONE/FAILED) em vez de pgrep para status
 # inequivoco. Log completo em quantize2.log.
 set -u
-WORK=/home/dev/llm_local_batman
+WORK=$HOME/llm_local_batman
 LOG="$WORK/quantize2.log"
 MARK="$WORK/status"
 
@@ -13,7 +13,7 @@ rm -f "$MARK"/DONE "$MARK"/FAILED "$MARK"/RUNNING
 echo "$(date +%T)" > "$MARK/RUNNING"
 echo "$$" > "$MARK/pid"
 
-cd /home/dev/llm_poc || { echo FAILED_CD > "$MARK/FAILED"; exit 1; }
+cd $HOME/llm_poc || { echo FAILED_CD > "$MARK/FAILED"; exit 1; }
 # shellcheck disable=SC1091
 source .venv/bin/activate
 

@@ -1,6 +1,6 @@
 {
-  "gguf": "/home/dev/llm_local_batman/gguf_gguf/Qwen2.5-3B-Instruct.Q6_K.gguf",
-  "holdout": "/home/dev/llm_local_batman/data/holdout.jsonl",
+  "gguf": "Qwen2.5-3B-Instruct.Q6_K.gguf",
+  "holdout": "holdout.jsonl",
   "total": 71,
   "acuracia": 0.7887,
   "json_valido": 1.0,
@@ -32,7 +32,7 @@
       "total": 10,
       "acuracia": 0.6
     },
-    "orbita/professor": {
+    "projeto-b/professor": {
       "total": 20,
       "acuracia": 0.45
     },
@@ -92,7 +92,7 @@
       "conf": 1.0,
       "latency_s": 13.05,
       "codigo": "A11Y-007",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 5,
@@ -146,7 +146,7 @@
       "conf": 0.95,
       "latency_s": 17.56,
       "codigo": "QA-AUTO-003",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 11,
@@ -155,7 +155,7 @@
       "conf": 0.95,
       "latency_s": 15.41,
       "codigo": "VPS-001",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 12,
@@ -164,7 +164,7 @@
       "conf": 0.95,
       "latency_s": 17.96,
       "codigo": "VPS-011",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 13,
@@ -191,7 +191,7 @@
       "conf": 0.95,
       "latency_s": 12.07,
       "codigo": "VPS-012",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 16,
@@ -209,7 +209,7 @@
       "conf": 1.0,
       "latency_s": 14.25,
       "codigo": "IR-004",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 18,
@@ -236,7 +236,7 @@
       "conf": 0.95,
       "latency_s": 14.76,
       "codigo": "CS-002",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 21,
@@ -344,7 +344,7 @@
       "conf": 1.0,
       "latency_s": 14.8,
       "codigo": "AI-003",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 33,
@@ -362,7 +362,7 @@
       "conf": 0.95,
       "latency_s": 13.86,
       "codigo": "A11Y-007",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 35,
@@ -389,7 +389,7 @@
       "conf": 0.95,
       "latency_s": 24.77,
       "codigo": "SWEEP-001",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 38,
@@ -425,7 +425,7 @@
       "conf": 0.95,
       "latency_s": 14.22,
       "codigo": "SRE-001",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 42,
@@ -443,7 +443,7 @@
       "conf": 0.95,
       "latency_s": 16.86,
       "codigo": "UXR-003",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 44,
@@ -479,7 +479,7 @@
       "conf": 0.95,
       "latency_s": 15.1,
       "codigo": "DA-001",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 48,
@@ -506,7 +506,7 @@
       "conf": 0.95,
       "latency_s": 15.78,
       "codigo": "QA-RUN-002",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 51,
@@ -560,7 +560,7 @@
       "conf": 0.95,
       "latency_s": 22.38,
       "codigo": "PD-012",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 57,
@@ -569,7 +569,7 @@
       "conf": 0.95,
       "latency_s": 14.3,
       "codigo": "NS-003",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 58,
@@ -578,7 +578,7 @@
       "conf": 0.95,
       "latency_s": 15.94,
       "codigo": "COMP-005",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 59,
@@ -632,7 +632,7 @@
       "conf": 0.95,
       "latency_s": 13.88,
       "codigo": "DE-002",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 65,
@@ -650,7 +650,7 @@
       "conf": 0.95,
       "latency_s": 17.38,
       "codigo": "NS-001",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 67,
@@ -686,7 +686,7 @@
       "conf": 0.95,
       "latency_s": 16.01,
       "codigo": "LEGAL-002",
-      "repo": "orbita"
+      "repo": "projeto-b"
     },
     {
       "n": 71,

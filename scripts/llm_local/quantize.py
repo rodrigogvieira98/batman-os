@@ -10,8 +10,8 @@ recuperou — nao repetir o teste.
 Roda dentro do venv do WSL (a fusao usa GPU; a quantizacao usa llama.cpp,
 que o Unsloth baixa/compila na 1a chamada):
     python scripts/llm_local/quantize.py \
-        --adapter /home/dev/llm_local_batman/checkpoints/final \
-        --out /home/dev/llm_local_batman/gguf
+        --adapter $HOME/llm_local_batman/checkpoints/final \
+        --out $HOME/llm_local_batman/gguf
 Depois copiar o .gguf para o Windows e apontar LLM_LOCAL_GGUF_PATH.
 """
 

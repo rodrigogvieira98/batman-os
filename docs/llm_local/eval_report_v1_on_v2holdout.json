@@ -1,6 +1,6 @@
 {
-  "gguf": "/home/dev/llm_local_batman/gguf_gguf/Qwen2.5-3B-Instruct.Q6_K.gguf",
-  "holdout": "/home/dev/llm_local_batman/data/holdout.jsonl",
+  "gguf": "Qwen2.5-3B-Instruct.Q6_K.gguf",
+  "holdout": "holdout.jsonl",
   "total": 93,
   "acuracia": 0.828,
   "json_valido": 1.0,

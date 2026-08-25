@@ -1,5 +1,5 @@
 {
-  "gguf": "/home/dev/llm_local_batman/gguf_v2_gguf/Qwen2.5-3B-Instruct.Q6_K.gguf",
+  "gguf": "Qwen2.5-3B-Instruct.Q6_K.gguf",
   "total": 93,
   "acuracia_geral": 0.9032,
   "sweep_logprob": [

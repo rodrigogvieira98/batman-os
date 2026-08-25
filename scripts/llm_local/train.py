@@ -5,7 +5,7 @@ radar-preditivo (`scripts/llm_poc/train.py`, rodadas PoC + R101): Unsloth
 + TRL SFTTrainer, base Qwen2.5-3B-Instruct em 4-bit, LoRA r=16.
 
 Roda dentro do venv do WSL (Unsloth + CUDA), nao no venv Windows:
-    cd /home/dev/llm_poc && source .venv/bin/activate
+    cd $HOME/llm_poc && source .venv/bin/activate
     python /mnt/c/.../batman-os/scripts/llm_local/train.py \
         --data-dir ~/llm_local_batman/data \
         --output-dir ~/llm_local_batman/checkpoints [--max-steps 10]

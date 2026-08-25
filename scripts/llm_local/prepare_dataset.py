@@ -14,7 +14,7 @@ byte-a-byte o que o `LocalLlmGateway` envia em produção):
   rotula seguindo `docs/llm_local/rubrica_professor_batman.md`, com
   cache em disco por hash do ponto (reruns não pagam de novo).
 
-Split: holdout = TODOS os exemplos do repo `orbita` (generalização
+Split: holdout = TODOS os exemplos do repo B (generalização
 cross-repo, substituto honesto do walk-forward até existir tráfego real)
 + fração estratificada por (fonte, opção gold) do restante.
 
@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import random
 import sys
 from collections import Counter
@@ -44,8 +45,11 @@ from batman_os.llm.prompts import SYSTEM_PROMPT, mensagem_usuario
 from batman_os.llm.schema_utils import schema_resposta_para_ponto
 
 REPO_BATMAN_OS = Path(__file__).resolve().parents[2]
-RADAR_ROOT_DEFAULT = Path(r"C:\Users\Rodrigo Vieira\Projeto 500\radar-preditivo")
-ORBITA_ROOT_DEFAULT = Path(r"C:\Users\Rodrigo Vieira\Projetos\orbita")
+#: Raizes dos repositorios reais usados como corpus da fonte B. Nao ha default
+#: valido fora da maquina do autor — passe `--repo-a-root` e `--repo-b-root`,
+#: ou exporte BATMAN_CORPUS_A / BATMAN_CORPUS_B.
+REPO_A_ROOT_DEFAULT = Path(os.environ.get("BATMAN_CORPUS_A", "../repo-a"))
+REPO_B_ROOT_DEFAULT = Path(os.environ.get("BATMAN_CORPUS_B", "../repo-b"))
 OUT_DIR_DEFAULT = REPO_BATMAN_OS / "data" / "llm_local"
 RUBRICA_PATH = REPO_BATMAN_OS / "docs" / "llm_local" / "rubrica_professor_batman.md"
 
@@ -129,11 +133,11 @@ def _carregar_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def gerar_fonte_a(radar_root: Path) -> list[dict[str, Any]]:
+def gerar_fonte_a(repo_a_root: Path) -> list[dict[str, Any]]:
     """Fatos operacionais do Batman legado -> exemplos gold.
     Precedencia por fingerprint: suprimir-fp > remediar (outcome resolvido)
     > adiar (regra deferida). Cada fingerprint entra no maximo uma vez."""
-    batman = radar_root / "Batman"
+    batman = repo_a_root / "Batman"
     ledger = _carregar_json(batman / "ledger.json").get("entries", {})
     supressoes: list[str] = _carregar_json(batman / "config" / "supressoes.json")
     deferred: dict[str, Any] = _carregar_json(batman / "config" / "deferred.json").get(
@@ -428,7 +432,7 @@ def dividir(exemplos: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[
     """Holdout estratificado por OPCAO_GOLD — cada classe (inclusive as
     minoritarias suprimir-fp/escalar-humano) fica representada no holdout,
     senao a acuracia por-classe fica sem amostra para medir. Sem caso
-    especial de repo (orbita saiu do dataset — e outro projeto)."""
+    especial de repo (o repo B saiu do dataset — e outro projeto)."""
     rng = random.Random(SEED)
     # Sinteticos (Fonte C) NUNCA entram no holdout — o holdout mede
     # desempenho em achados REAIS. Vao direto pro train.
@@ -513,8 +517,8 @@ def main() -> int:
         help="gera exemplos sinteticos de baixo-contexto -> escalar-humano (defer)",
     )
     parser.add_argument("--fonte-c-alvo", type=int, default=70)
-    parser.add_argument("--radar-root", type=Path, default=RADAR_ROOT_DEFAULT)
-    parser.add_argument("--orbita-root", type=Path, default=ORBITA_ROOT_DEFAULT)
+    parser.add_argument("--repo-a-root", type=Path, default=REPO_A_ROOT_DEFAULT)
+    parser.add_argument("--repo-b-root", type=Path, default=REPO_B_ROOT_DEFAULT)
     parser.add_argument("--out-dir", type=Path, default=OUT_DIR_DEFAULT)
     parser.add_argument(
         "--professor-max",
@@ -528,7 +532,7 @@ def main() -> int:
         "--scan-repos",
         default="batman-os",
         help="quais repos escanear na fonte B (lista separada por virgula). "
-        "orbita NAO entra (projeto separado); radar-preditivo e LENTO (.venv/data).",
+        "o repo B NAO entra (projeto separado); o repo A e LENTO (.venv/data).",
     )
     parser.add_argument(
         "--balancear",
@@ -558,7 +562,7 @@ def main() -> int:
 
     exemplos: list[dict[str, Any]] = []
     if args.fonte_a:
-        fonte_a = gerar_fonte_a(args.radar_root)
+        fonte_a = gerar_fonte_a(args.repo_a_root)
         print(f"[fonte-a] {len(fonte_a)} exemplos ({Counter(e['meta']['fonte'] for e in fonte_a)})")
         exemplos.extend(fonte_a)
 
@@ -578,8 +582,8 @@ def main() -> int:
             print(f"[fonte-b] {len(contextos)} contextos carregados de pendentes (sem scan)")
         else:
             disponiveis = {
-                "radar-preditivo": args.radar_root,
-                "orbita": args.orbita_root,
+                "repo-a": args.repo_a_root,
+                "repo-b": args.repo_b_root,
                 "batman-os": REPO_BATMAN_OS,
             }
             selecionados = [nome.strip() for nome in args.scan_repos.split(",") if nome.strip()]

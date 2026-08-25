@@ -229,7 +229,7 @@ class TestRastroLocalDoObserve:
     rastro NENHUM na máquina.
 
     Medido na VPS em 2026-08-12: o processo estava vivo (pid 1021816, 60 dias
-    de uptime), e `/var/log/radar/batman_os_observe.log` tinha **0 bytes desde
+    de uptime), e `/var/log/<app>/batman_os_observe.log` tinha **0 bytes desde
     23/07**. A causa é esta classe: `run_forever` só logava em EXCEÇÃO, então
     20 dias sem exceção produzem um arquivo vazio — e arquivo vazio é
     indistinguível de "o daemon nunca subiu".
@@ -239,7 +239,7 @@ class TestRastroLocalDoObserve:
     não havia **quando**. Sem carimbo não dá para separar as duas hipóteses —
     pico real numa janela de cron pesado, ou limiar mal calibrado.
 
-    O volume é deliberadamente contido: `/var/log/radar` **não tem logrotate**
+    O volume é deliberadamente contido: `/var/log/<app>` **não tem logrotate**
     (medido: 548 MB, arquivos de até 174 MB), então logar 1.440 linhas/dia
     trocaria um crescimento sem teto por outro. Loga-se o que é informativo —
     o alerta, e o ciclo em que alguma métrica entra em banda.

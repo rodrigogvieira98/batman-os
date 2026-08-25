@@ -132,7 +132,7 @@ class ObserveWatcher:
         calibrado, porque não havia **quando**.
 
         Só entra no log o que é informativo — leitura a partir da banda de
-        WARNING. A trava importa: `/var/log/radar` **não tem logrotate**
+        WARNING. A trava importa: `/var/log/<app>` **não tem logrotate**
         (medido: 548 MB, arquivos de até 174 MB), e o daemon roda 1.440 ciclos
         por dia. Logar todo ciclo trocaria um crescimento sem teto por outro,
         que é o defeito que este mesmo lote de trabalho está consertando no

@@ -1,5 +1,5 @@
 {
-  "gguf": "/home/dev/llm_local_batman/gguf_v2_gguf/Qwen2.5-3B-Instruct.Q6_K.gguf",
+  "gguf": "Qwen2.5-3B-Instruct.Q6_K.gguf",
   "n_amostras": 5,
   "temperatura": 0.7,
   "total": 82,
