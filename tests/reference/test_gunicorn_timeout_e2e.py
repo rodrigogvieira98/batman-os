@@ -364,5 +364,11 @@ class TestCicloDeAprendizadoEExecucaoN:
         debt_so_historico = cognitive_debt_por_tipo(memory.all_records()[:12], TIPO)
         debt_com_execucao_n = cognitive_debt_por_tipo(memory.all_records(), TIPO)
 
+        # `cognitive_debt_por_tipo` passou a devolver `None` para NO_DATA em
+        # 2026-08-26: antes devolvia 0.0 sem registros, e 0.0 neste KPI le como
+        # "toda missao autonoma". Aqui HA registros nos dois casos, entao None
+        # seria defeito — asserir isso e o que separa "mediu zero" de "nao mediu".
+        assert debt_so_historico is not None, "ha 12 registros: NO_DATA seria defeito"
+        assert debt_com_execucao_n is not None, "ha registros: NO_DATA seria defeito"
         assert debt_so_historico == 1.0  # 12 de 12 ocorrencias humanas
         assert debt_com_execucao_n < debt_so_historico  # Cognitive Debt caiu (secao 35.4)

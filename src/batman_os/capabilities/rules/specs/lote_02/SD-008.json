@@ -5,17 +5,26 @@
     "severidade": "medium",
     "categoria": "dados-tempo-real",
     "titulo": "Tela com dados B3 sem indicador de status de mercado (aberto/fechado)",
-    "causa": "Páginas que exibem sinais, oportunidades ou preços dependem do pregão B3 (09h–17h30 BRT, dias úteis). Sem comunicar ao usuário se o mercado está aberto ou fechado, dados exibidos parecem ao vivo quando são estáticos, ou ausentes quando parecem deveria haver algo.",
-    "remediacao": "Adicionar MarketStatus ou badge 'Mercado aberto/fechado' em toda tela de sinais/area-c. DoD: toda tela com paper_trading/area-f tem indicador de status de mercado visível.",
+    "causa": "Páginas que exibem sinais, oportunidades ou preços dependem do pregão B3 (09h–17h30 BRT, dias úteis). Sem comunicar ao usuário se o mercado está aberto ou fechado, dados exibidos parecem ao vivo quando são estáticos, ou ausentes quando pareceria que deveria haver algo.",
+    "remediacao": "Adicionar MarketStatus, MarketClosedBanner ou badge 'Mercado aberto/fechado' na tela. DoD: toda tela que renderiza sinais/preços tem indicador de status de mercado visível. ⚠️ LIMITAÇÃO CONHECIDA: esta regra procura a mitigação NO MESMO ARQUIVO e NÃO enxerga mitigação ESTRUTURAL. Se o projeto renderiza o indicador num Layout que envolve as rotas, as páginas herdam e esta regra ainda acusa — confira o Layout antes de remediar. Medido em 2026-09-04 no radar-preditivo: 41 achados, todos falso positivo (Layout.tsx:444 renderiza MarketStatus e envolve todas as rotas protegidas).",
     "modo": "presenca-sem-mitigacao",
     "pattern": "paper_trading|oportunidades|sinaisApi|entry_price|SinalCard|Oportunidades|sinais\\b",
-    "pattern_mitigacao": "MarketStatus|isB3Open|is_b3_open|mercado\\s+(aberto|fechado)|pregão|isTradingDay",
+    "pattern_mitigacao": "MarketStatus|MarketClosedBanner|isB3Open|is_b3_open|mercado\\s+(aberto|fechado)|pregão|pregao|isTradingDay",
     "ignore_case": true
   },
   "descoberta": {
     "tipo": "arvore",
-    "scope_dirs": ["frontend/src"],
+    "scope_dirs": ["frontend/src/pages", "frontend/src/components"],
     "extensoes": [".ts", ".tsx"],
-    "excluir_nome_contem_lower": ["layout"]
+    "excluir_nome_contem_lower": [
+      "layout",
+      "termos",
+      "termo",
+      "politica",
+      "privacidade",
+      "policy",
+      "tooltip",
+      "faq"
+    ]
   }
 }

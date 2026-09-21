@@ -1,7 +1,7 @@
 """Testes de comportamento do spec COMP-007 (`specs/lote_03/COMP-007.json`)
 contra o handler genérico `avaliar_regra_regex` — replica
 `Batman/scan/rules/compliance.py::ForbiddenPricingCopy`: comparação com
-indexadores de renda fixa OU (patrimônio% E palavra de preço) NA MESMA LINHA.
+Selic/CDI/poupança OU (patrimônio% E palavra de preço) NA MESMA LINHA.
 
 O legado avalia linha a linha; o spec preserva essa semântica com
 `[^\\S\\n]+` no lugar de `\\s+` (espaço que não cruza linha) e com o grupo

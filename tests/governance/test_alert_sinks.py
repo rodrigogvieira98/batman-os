@@ -35,16 +35,34 @@ def _alerta(
 class _TransporteFake:
     def __init__(self, falhar: bool = False) -> None:
         self.chamadas: list[tuple[str, dict[str, Any]]] = []
+        self.edicoes: list[tuple[str, dict[str, Any]]] = []
         self._falhar = falhar
 
-    def postar(self, webhook_url: str, payload: dict[str, Any]) -> None:
+    def postar(self, webhook_url: str, payload: dict[str, Any]) -> str | None:
         if self._falhar:
             raise ConnectionError("webhook fora do ar")
         self.chamadas.append((webhook_url, payload))
+        return str(len(self.chamadas))
+
+    # ⚠️ O fake espelha a interface REAL. Desde SAIDA-004 o transporte tem
+    # `editar`, porque a recuperacao REESCREVE a mensagem de abertura em vez de
+    # postar uma nova. Fake sem o metodo deixa o caminho de producao sem
+    # cobertura de tipo -- e foi assim que o Protocol e o fake divergiram.
+    def editar(self, webhook_url: str, message_id: str, payload: dict[str, Any]) -> None:
+        if self._falhar:
+            raise ConnectionError("webhook fora do ar")
+        self.edicoes.append((message_id, payload))
 
 
 class TestEnvioBasico:
-    def test_envia_embed_com_severidade_e_fonte(self) -> None:
+    def test_titulo_e_humano_e_o_jargao_vai_para_o_detalhe(self) -> None:
+        """Ordem do DEV, 2026-09-05: o titulo diz o que aconteceu.
+
+        Antes era `🔴 [CRITICAL] sla-breach` -- severidade em caixa alta e
+        identificador interno, ilegivel para quem nao escreveu o codigo. A
+        severidade continua legivel pelo EMOJI, e `sla-breach` nao some: desce
+        para o campo de detalhe tecnico, onde serve a quem for investigar.
+        """
         t = _TransporteFake()
         sink = DiscordAlertSink(webhook_global=WEBHOOK, transporte=t)
 
@@ -54,9 +72,26 @@ class TestEnvioBasico:
         url, payload = t.chamadas[0]
         assert url == WEBHOOK
         embed = payload["embeds"][0]
-        assert "CRITICAL" in embed["title"]
-        assert "sla-breach" in embed["title"]
-        assert embed["fields"][0]["value"].startswith("p95=1200ms")
+        assert embed["title"].startswith("🔴"), "severidade continua legivel no emoji"
+        assert "CRITICAL" not in embed["title"]
+        assert "sla-breach" not in embed["title"]
+        nomes = [c["name"] for c in embed["fields"]]
+        assert nomes[0] == "O que aconteceu"
+        assert any("Detalhe técnico" in n for n in nomes)
+        detalhe = " ".join(c["value"] for c in embed["fields"])
+        assert "p95=1200ms" in detalhe, "a evidencia tecnica nao pode se perder"
+
+    def test_o_embed_responde_as_cinco_perguntas(self) -> None:
+        """Estado, impacto e acao sao o que torna o alerta acionavel por quem
+        nao e da engenharia -- e o que nenhum alerta trazia antes."""
+        t = _TransporteFake()
+        sink = DiscordAlertSink(webhook_global=WEBHOOK, transporte=t)
+
+        sink.enviar(_alerta(severity=SeveridadeAlerta.CRITICAL))
+
+        nomes = [c["name"] for c in t.chamadas[0][1]["embeds"][0]["fields"]]
+        for esperado in ("O que aconteceu", "Estado do serviço", "Ação recomendada", "Impacto"):
+            assert esperado in nomes, f"falta '{esperado}' no embed"
 
     def test_footer_nao_vaza_hostname_so_tenant(self) -> None:
         t = _TransporteFake()
@@ -155,20 +190,20 @@ class TestDedupePorEstado:
 class TestThrottleDiarioEPersistencia:
     """O fix do flood (2026-07-23): dedup PERSISTIDO com janela diaria — cada
     run do cron do monitor e um processo NOVO, e sem disco o estado nascia
-    vazio e re-alertava a Assistente caida todo ciclo de 5min."""
+    vazio e re-alertava a Iris caida todo ciclo de 5min."""
 
     def test_persistencia_entre_processos_suprime(self, tmp_path: Any) -> None:
         caminho = tmp_path / "dedup.json"
         t1 = _TransporteFake()
         sink1 = DiscordAlertSink(webhook_global=WEBHOOK, transporte=t1, caminho_estado=caminho)
-        sink1.enviar(_alerta(source=FonteAlerta.FEATURE_DOWN, evidencias=["assistente chat down"]))
+        sink1.enviar(_alerta(source=FonteAlerta.FEATURE_DOWN, evidencias=["iris chat down"]))
         assert len(t1.chamadas) == 1
         assert caminho.exists()
 
         # processo NOVO (proximo tick do cron): outro sink, MESMO arquivo
         t2 = _TransporteFake()
         sink2 = DiscordAlertSink(webhook_global=WEBHOOK, transporte=t2, caminho_estado=caminho)
-        sink2.enviar(_alerta(source=FonteAlerta.FEATURE_DOWN, evidencias=["assistente chat down"]))
+        sink2.enviar(_alerta(source=FonteAlerta.FEATURE_DOWN, evidencias=["iris chat down"]))
         assert len(t2.chamadas) == 0  # suprimido pelo estado em disco
 
     def test_janela_zero_desliga_throttle(self) -> None:
@@ -187,9 +222,9 @@ class TestThrottleDiarioEPersistencia:
         caminho = tmp_path / "dedup.json"
         t = _TransporteFake()
         sink = DiscordAlertSink(webhook_global=WEBHOOK, transporte=t, caminho_estado=caminho)
-        sink.enviar(_alerta(source=FonteAlerta.FEATURE_DOWN, evidencias=["assistente down"]))
+        sink.enviar(_alerta(source=FonteAlerta.FEATURE_DOWN, evidencias=["iris down"]))
         # recuperacao = OUTRA fonte/assinatura => passa mesmo recem-enviado
-        sink.enviar(_alerta(source=FonteAlerta.FEATURE_RECOVERED, evidencias=["assistente ok"]))
+        sink.enviar(_alerta(source=FonteAlerta.FEATURE_RECOVERED, evidencias=["iris ok"]))
         assert len(t.chamadas) == 2
 
     def test_reenvio_apos_expirar_janela(self, tmp_path: Any) -> None:
@@ -233,7 +268,7 @@ class TestThrottleDiarioEPersistencia:
         caminho = tmp_path / "dedup.json"
         t = _TransporteFake()
         sink = DiscordAlertSink(webhook_global=WEBHOOK, transporte=t, caminho_estado=caminho)
-        base = ["feature=syn-recurso-d-chat", "status esperado=200 obtido=503"]
+        base = ["feature=syn-iris-chat", "status esperado=200 obtido=503"]
         sink.enviar(
             _alerta(
                 source=FonteAlerta.FEATURE_DOWN,
@@ -281,7 +316,7 @@ class TestThrottleDiarioEPersistencia:
         crit: dict[str, Any] = {
             "source": FonteAlerta.FEATURE_DOWN,
             "severity": SeveridadeAlerta.CRITICAL,
-            "evidencias": ["assistente down"],
+            "evidencias": ["iris down"],
         }
         sc.enviar(_alerta(**crit))
         _envelhecer(sc, 7200)
@@ -373,15 +408,38 @@ class TestTransporteUrllib:
         capturado: dict[str, Any] = {}
 
         class _Resp:
+            # ⚠️ O fake espelha a interface REAL. Desde SAIDA-004 o transporte
+            # LE a resposta (`?wait=true` devolve o objeto da mensagem, e o ID
+            # dele e a unica forma de editar depois), entao um fake que so fecha
+            # nao exercita mais o caminho de producao.
+            def read(self) -> bytes:
+                return b'{"id": "123456789"}'
+
             def close(self) -> None:
+                pass
+
+            def __enter__(self) -> _Resp:
+                return self
+
+            def __exit__(self, *_: Any) -> None:
                 pass
 
         def fake_urlopen(req: Any, timeout: float) -> Any:
             capturado["ua"] = req.get_header("User-agent")
+            capturado["url"] = req.full_url
+            capturado["metodo"] = req.get_method()
             return _Resp()
 
         monkeypatch.setattr("batman_os.governance.alert_sinks.urllib.request.urlopen", fake_urlopen)
-        alert_sinks._TransporteUrllib().postar("https://discord.test/wh", {"content": "x"})
+        devolvido = alert_sinks._TransporteUrllib().postar(
+            "https://discord.test/wh", {"content": "x"}
+        )
+
+        # `?wait=true` e o que faz o Discord devolver o ID; sem ele a resposta e
+        # 204 sem corpo e nao ha o que editar depois.
+        assert "wait=true" in capturado["url"]
+        assert capturado["metodo"] == "POST"
+        assert devolvido == "123456789"
 
         assert capturado["ua"] and "BatmanOS" in capturado["ua"]
 

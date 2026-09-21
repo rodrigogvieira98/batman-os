@@ -5,7 +5,7 @@
     "severidade": "medium",
     "categoria": "navegacao",
     "titulo": "Página de detalhe sem link de volta / breadcrumb",
-    "causa": "Página de detalhe (ex: /area-f/:id) sem 'Voltar', breadcrumb ou link para a lista cria dead-end: o usuário só sai usando o botão Voltar do browser — que pode não existir em PWA standalone ou webview. Especialmente crítico em mobile onde o header do browser está oculto.",
+    "causa": "Página de detalhe (ex: /sinais/:id) sem 'Voltar', breadcrumb ou link para a lista cria dead-end: o usuário só sai usando o botão Voltar do browser — que pode não existir em PWA standalone ou webview. Especialmente crítico em mobile onde o header do browser está oculto.",
     "remediacao": "Adicionar link '← Voltar' ou breadcrumb no topo de toda página de detalhe. DoD: toda rota com parâmetro dinâmico (:id, :ticker, :slug) tem navegação de retorno explícita.",
     "modo": "presenca-sem-mitigacao",
     "pattern": "useParams|params\\.(id|ticker|slug)\\b",

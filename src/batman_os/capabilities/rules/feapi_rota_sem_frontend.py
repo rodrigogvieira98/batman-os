@@ -34,7 +34,16 @@ from batman_os.runtime.capability_engine import CapabilityDefinition, SideEffect
 
 _HTTP_METHODS = frozenset({"get", "post", "put", "patch", "delete"})
 _ADMIN_ROUTERS = frozenset({"admin.py", "deploy.py", "metrics.py", "release.py"})
-_ADMIN_PREFIXES = ("/health", "/admin/")
+#: Prefixos de rota que NAO se espera encontrar no frontend.
+#:
+#: ⚠️ `/webhooks` entrou em 2026-09-04, e e falso positivo ESTRUTURAL, nao
+#: circunstancial: um webhook e chamado pelo PROVEDOR externo (Mercado Pago,
+#: Stripe, GitHub), nunca pelo navegador do usuario. Exigir metodo no frontend
+#: para ele e pedir que o cliente chame o proprio servidor no lugar do provedor
+#: -- e se alguem "corrigisse" o achado criando esse metodo, teria construido
+#: exatamente a superficie que um webhook nao deve ter.
+#: Medido no radar-preditivo: `/webhooks/mercadopago` era 1 dos 4 achados.
+_ADMIN_PREFIXES = ("/health", "/admin/", "/webhooks", "/webhook/")
 
 
 class RegraFeApiSpec(BaseModel):

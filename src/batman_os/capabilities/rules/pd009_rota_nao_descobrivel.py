@@ -26,7 +26,7 @@ from batman_os.foundation.types import CapabilityId
 from batman_os.runtime.capability_engine import CapabilityDefinition, SideEffects
 
 _ORPHAN_ROUTES = re.compile(
-    r'path=["\'](/retrospectiva|/area-e|/ajuda|/glossario|/propagador|/changelog)["\']',
+    r'path=["\'](/retrospectiva|/newsletter|/ajuda|/glossario|/propagador|/changelog)["\']',
     re.I,
 )
 
@@ -153,7 +153,7 @@ def construir_implementacao() -> CapabilityImplementation:
         "caminho": "frontend/src/App.tsx",
         "conteudo": json.dumps(
             {
-                "app_texto": '<Route path="/area-e" element={<Newsletter />} />',
+                "app_texto": '<Route path="/newsletter" element={<Newsletter />} />',
                 "nav_textos": ["nada relacionado aqui"],
             }
         ),
@@ -163,8 +163,8 @@ def construir_implementacao() -> CapabilityImplementation:
         "caminho": "frontend/src/App.tsx",
         "conteudo": json.dumps(
             {
-                "app_texto": '<Route path="/area-e" element={<Newsletter />} />',
-                "nav_textos": ["<Link to='/area-e'>Newsletter</Link>"],
+                "app_texto": '<Route path="/newsletter" element={<Newsletter />} />',
+                "nav_textos": ["<Link to='/newsletter'>Newsletter</Link>"],
             }
         ),
         "regra": _regra_teste,

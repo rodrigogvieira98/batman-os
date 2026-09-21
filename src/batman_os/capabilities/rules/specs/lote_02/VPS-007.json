@@ -6,7 +6,7 @@
     "categoria": "segurança",
     "titulo": "CORS_ORIGINS com wildcard '*' em template de produção",
     "causa": "CORS_ORIGINS=* em produção permite que qualquer origem faça chamadas autenticadas à API, anulando a proteção CSRF e expondo endpoints de usuário a ataques cross-site.",
-    "remediacao": "Definir CORS_ORIGINS com domínios explícitos (ex: https://exemplo.test). DoD: nenhum CORS_ORIGINS=* em .env.production.example ou .env.production.",
+    "remediacao": "Definir CORS_ORIGINS com domínios explícitos (ex: https://exemplo.group). DoD: nenhum CORS_ORIGINS=* em .env.production.example ou .env.production.",
     "modo": "presenca",
     "pattern": "CORS_ORIGINS\\s*=\\s*\\*"
   },

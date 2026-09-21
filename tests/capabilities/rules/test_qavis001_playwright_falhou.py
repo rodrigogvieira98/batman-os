@@ -154,7 +154,7 @@ class TestBloqueadoPrd:
                 "stdout": "",
                 "stderr": "",
                 "bloqueado_prd": True,
-                "base_url": "https://exemplo.test",
+                "base_url": "https://exemplo.group",
             }
         )
         saida = avaliar_qavis001(entrada, _contexto())

@@ -27,7 +27,7 @@ from batman_os.runtime.capability_engine import CapabilityDefinition, SideEffect
 _ROUTE_PATTERN = re.compile(r"to:\s*['\"]([^'\"]+)['\"]")
 
 _CANONICAL_VIEWER: frozenset[str] = frozenset(
-    {"/area-a", "/area-b", "/area-c", "/area-d", "/area-e"}
+    {"/investidor", "/mercado", "/oportunidades", "/simulacoes", "/newsletter"}
 )
 _CANONICAL_ADMIN: frozenset[str] = frozenset(
     {"/admin", "/admin/operacao", "/admin/engenharia", "/admin/analise", "/admin/comercial"}
@@ -170,18 +170,18 @@ def construir_implementacao() -> CapabilityImplementation:
     }
     entrada_sucesso = {
         "caminho": "frontend/src/components/Layout.tsx",
-        "conteudo": "const NAV_VIEWER = [\n  { to: '/area-a' },\n  { to: '/area-b' },\n];\n",
+        "conteudo": "const NAV_VIEWER = [\n  { to: '/investidor' },\n  { to: '/mercado' },\n];\n",
         "regra": _regra_teste,
     }
     entrada_ok = {
         "caminho": "frontend/src/components/Layout.tsx",
         "conteudo": (
             "const NAV_VIEWER = [\n"
-            "  { to: '/area-a' },\n"
-            "  { to: '/area-b' },\n"
-            "  { to: '/area-c' },\n"
-            "  { to: '/area-d' },\n"
-            "  { to: '/area-e' },\n"
+            "  { to: '/investidor' },\n"
+            "  { to: '/mercado' },\n"
+            "  { to: '/oportunidades' },\n"
+            "  { to: '/simulacoes' },\n"
+            "  { to: '/newsletter' },\n"
             "];\n"
         ),
         "regra": _regra_teste,

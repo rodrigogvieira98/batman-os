@@ -63,6 +63,18 @@ class FonteAlerta(StrEnum):
     FEATURE_DOWN = "feature-down"
     FEATURE_RECOVERED = "feature-recovered"
     MANIFEST_DRIFT = "manifest-drift"
+    #: O monitor NAO CONSEGUIU VERIFICAR — distinto de "a feature caiu".
+    #:
+    #: Nasceu em 2026-09-05, de um episodio de 18 h: o login sintetico passou a
+    #: ser recusado, e os 7 checks que dependem da sessao pararam de rodar
+    #: emitindo apenas um WARNING de log dizendo "config, nao outage" -- frase
+    #: que o codigo nao tinha como sustentar, porque nao distinguia credencial
+    #: ausente de login reprovado. No Discord, "nao rodou" e "passou" ficaram
+    #: indistinguiveis.
+    #:
+    #: Nao reusa FEATURE_DOWN de proposito: as features podiam estar intactas.
+    #: Dizer que cairam seria o alerta afirmando mais do que mediu.
+    MONITOR_CEGO = "monitor-cego"
     # dados-sentinela (Onda 1, Plano Cobertura Total, S162) -- observe/
     # data_sentinela.py: saude de DADOS em producao (frescor/integridade),
     # cegueira nº2 do plano ("pipeline error sem alerta" -- PIPE_FSIM_MTM01
@@ -72,6 +84,16 @@ class FonteAlerta(StrEnum):
     DATA_SOURCE_STALE = "data-source-stale"
     DATA_SOURCE_MISSING = "data-source-missing"
     DATA_ROW_COUNT_DROP = "data-row-count-drop"
+    #: A ORIGEM aceitou trafego que nao veio pelo proxy da nossa zona —
+    #: `DIV-REALIP-002` e `WEB-06`. Extensao do StrEnum, como as anteriores:
+    #: nunca reinterpreta valores existentes.
+    #:
+    #: ⚠️ Valor NOVO em vez de reusar `SECURITY_INTRUSION`, e a distincao e o
+    #: ponto: nao ha intrusao, ha EXPOSICAO. O relatorio diario agrupa por
+    #: fonte, entao classificar postura como intrusao contaminaria a contagem de
+    #: intrusoes — e um numero de intrusoes que cresce sem intrusao nenhuma e
+    #: exatamente o tipo de mentira que esta frente existe para eliminar.
+    ORIGEM_ALCANCAVEL = "origem-alcancavel"
 
 
 class SeveridadeAlerta(StrEnum):
@@ -126,22 +148,35 @@ class GovernanceEngine:
         # (ADR-0012) — recebe um GovernanceAlert ja pronto.
         self._sink = sink
 
-    def raise_alert(self, alert: GovernanceAlert) -> None:
-        """AT-27.1."""
+    def raise_alert(self, alert: GovernanceAlert) -> str | None:
+        """AT-27.1. Devolve o DESFECHO da entrega, quando o sink o informa.
+
+        ⚠️ **Devolver e o conserto do `DIV-PROVA-001`.** Antes isto era `-> None`
+        e o emissor nao tinha como distinguir "entregue" de "suprimido pelo
+        throttle". Medido em 11/09: a prova de vida das 06:00 caiu em
+        `suprimido_por_janela` e o emissor gravou a janela como relatada --
+        falha silenciosa dentro do mecanismo feito para detectar silencio.
+
+        `None` significa "nao ha sink" ou "o sink nao informa desfecho", e NAO
+        "entregue". Quem trata o retorno precisa distinguir os dois: assumir
+        entrega na ausencia de informacao seria recriar o mesmo defeito.
+        """
         if not alert.evidence:
             raise EvidenciaObrigatoriaParaAlerta(
                 f"GovernanceAlert (source='{alert.source.value}') nao pode ser "
                 "levantado sem evidence (Evidence First)"
             )
         self._alertas[alert.id] = alert
-        if self._sink is not None:
-            # Entrega best-effort: uma falha de webhook JAMAIS pode impedir
-            # que o alerta seja registrado/consultavel (mesma disciplina do
-            # `_post` legado e do CostTracker.registrar).
-            try:
-                self._sink.enviar(alert)
-            except Exception as exc:  # defesa em profundidade
-                logger.error("sink de alerta falhou (alerta persiste): %s", exc)
+        if self._sink is None:
+            return None
+        # Entrega best-effort: uma falha de webhook JAMAIS pode impedir
+        # que o alerta seja registrado/consultavel (mesma disciplina do
+        # `_post` legado e do CostTracker.registrar).
+        try:
+            return self._sink.enviar(alert)
+        except Exception as exc:  # defesa em profundidade
+            logger.error("sink de alerta falhou (alerta persiste): %s", exc)
+            return "falha_de_sink"
 
     def get_open_alerts(
         self,

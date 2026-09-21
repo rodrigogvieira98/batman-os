@@ -20,6 +20,7 @@ from batman_os.learning.operational_learning import (
     ItemDeBacklog,
     cognitive_debt_por_tipo,
     idade_do_backlog_pendente,
+    leitura_cognitive_debt,
     rastrear_origem_da_regra,
     tempo_de_resolucao_dos_concluidos,
     trajetoria_cognitive_debt,
@@ -74,8 +75,28 @@ class TestAT261CognitiveDebtIsoladoPorMissionType:
         assert debt_a == 1 / 3
         assert debt_b == 1.0
 
-    def test_tipo_sem_registros_e_zero(self) -> None:
-        assert cognitive_debt_por_tipo([], TIPO_A) == 0.0
+    def test_tipo_sem_registros_e_no_data_e_nunca_zero(self) -> None:
+        """Ausencia de dado NAO pode ler como autonomia perfeita.
+
+        ⚠️ Este teste exigia `== 0.0` ate 2026-08-26 — ou seja, consagrava a
+        falha silenciosa como requisito. E `0.0` neste KPI significa "toda
+        missao resolvida autonomamente": sem nenhum registro, a metrica que
+        mede autonomia declarava autonomia perfeita. "Nunca tentou" e
+        "acertou tudo" produziam o mesmo numero, e o segundo e o que alguem
+        publicaria num relatorio.
+
+        A spec (Vol.VI Cap.26) nao define o caso vazio — nao ha divergencia
+        com ela, e sim lacuna preenchida pela unica leitura defensavel.
+        """
+        assert cognitive_debt_por_tipo([], TIPO_A) is None
+
+    def test_leitura_publica_a_cobertura_junto_da_taxa(self) -> None:
+        """Taxa sem cobertura nao e interpretavel: "das que rodaram, quantas
+        precisaram de fora?" nao diz quantas deveriam ter rodado."""
+        leitura = leitura_cognitive_debt([], TIPO_A)
+        assert leitura.sem_dados is True
+        assert leitura.total_missoes == 0
+        assert leitura.proporcao_nao_autonoma is None
 
     def test_trajetoria_mostra_queda_ao_longo_do_tempo(self) -> None:
         base = agora()

@@ -14,7 +14,7 @@
     "args": ["playwright", "test", "--reporter=json"],
     "base_url_env": "BATMAN_QAVIS_BASE_URL",
     "timeout": 300,
-    "dominios_proibidos": ["exemplo.test"],
+    "dominios_proibidos": ["exemplo.group"],
     "caminho_relatorio": "frontend/e2e/"
   }
 }

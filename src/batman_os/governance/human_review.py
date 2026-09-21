@@ -207,7 +207,7 @@ def emitir_referencia(decisao: HumanReviewDecision) -> HumanReviewRef:
     if decisao.decision != "approved":
         raise ValueError(
             f"Decisao '{decisao.request_id}' nao esta 'approved' "
-            f"(esta '{decisao.decision}') — nao gera HumanReviewRef"
+            f"(esta '{decisao.decision}'), nao gera HumanReviewRef"
         )
     return HumanReviewRef(f"{decisao.request_id}:{decisao.reviewer_id}")
 

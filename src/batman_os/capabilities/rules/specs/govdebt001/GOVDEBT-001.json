@@ -5,12 +5,13 @@
     "severidade": "high",
     "categoria": "governança",
     "titulo": "Finding aberto sem decisão há 2+ sessões",
-    "causa": "Um finding detectado pelo Batman permanece 'open' por múltiplas sessões sem ser corrigido nem explicitamente deferido. Isso caracteriza débito técnico aceito passivamente — contradiz a política de zero tolerância a débito.",
-    "remediacao": "Escolha uma das duas ações: (A) Corrija o finding original — ele desaparecerá do ledger automaticamente. (B) Com autorização EXPLÍCITA do desenvolvedor, documente a decisão em Batman/config/deferred.json com 'reason', 'decidido_em' e 'revisao_sugerida' — deferimento é prerrogativa do DEV, nunca decisão autônoma de agente. Ignorar não é opção: GOVDEBT bloqueia o gate em HIGH."
+    "causa": "Um finding detectado pelo Batman permanece aberto por múltiplas sessões sem ser corrigido nem explicitamente deferido. Isso caracteriza débito técnico aceito passivamente — contradiz a política de zero tolerância a débito.",
+    "remediacao": "Escolha uma das duas ações: (A) Corrija o finding original — ele sai da fila sozinho no próximo scan, como 'resolvido'. (B) Com autorização EXPLÍCITA do desenvolvedor, registre a decisão com 'batman inbox defer <id> --nota \"<razão nomeável + quando revisar>\"' — deferimento é prerrogativa do DEV, nunca decisão autônoma de agente. Para achado já corrigido, use 'batman inbox ack <id> --nota \"<commit>\"'. ⚠️ Consulte a fila com 'batman inbox list --root <repo>': sem --root, o comando lê o diretório de trabalho e pode responder '0 achado(s)' com a fila cheia. Ignorar não é opção: GOVDEBT bloqueia o gate em HIGH."
   },
   "descoberta": {
     "tipo": "govdebt001",
     "ledger_path": "Batman/ledger.json",
-    "deferred_path": "Batman/config/deferred.json"
+    "deferred_path": "Batman/config/deferred.json",
+    "usar_inbox": true
   }
 }

@@ -81,6 +81,32 @@ def _stem(caminho: str) -> str:
     return nome
 
 
+def _tem_teste(name: str, test_stems: set[str]) -> bool:
+    """O router `name` e coberto por algum arquivo de teste?
+
+    ⚠️ Ate 2026-09-04 a comparacao era IGUALDADE — `test_<router>.py` e nada
+    mais. Isso mede o NOME DO ARQUIVO, nao a cobertura, e num projeto que nomeia
+    o teste pelo CASO em vez de pelo modulo produz falso positivo em massa:
+    medido no radar-preditivo, **44 dos 45 routers** eram acusados enquanto 125
+    arquivos de teste exercitavam routers. `admin` era dado como sem teste tendo
+    `test_admin_kpis_exclusao.py`, `test_admin_plan_change.py` e outros.
+
+    Agora aceita tambem o prefixo com separador (`admin` casa
+    `admin_kpis_exclusao`, e nao casa `administracao`). Medido no mesmo
+    repositorio: **44 -> 19 acusados**, e as 25 exclusoes todas com um teste
+    nomeado que as justifica.
+
+    ⚠️ LIMITE QUE PERMANECE, e esta declarado de proposito: isto continua sendo
+    heuristica sobre NOME. Um router testado num arquivo que nao o nomeia segue
+    acusado. Medir cobertura de verdade exigiria ler os testes (imports, rotas
+    exercitadas), que e outra ordem de custo.
+    """
+    if name in test_stems or f"test_{name}" in test_stems:
+        return True
+    prefixo = f"{name}_"
+    return any(stem.startswith(prefixo) for stem in test_stems)
+
+
 def avaliar_qaauto001(entrada: Any, contexto: ExecutionContext) -> Any:
     del contexto
     try:
@@ -95,7 +121,7 @@ def avaliar_qaauto001(entrada: Any, contexto: ExecutionContext) -> Any:
     payload = json.loads(dados.conteudo) if dados.conteudo else {"test_stems": []}
     test_stems: set[str] = set(payload.get("test_stems", []))
 
-    if name in test_stems or f"test_{name}" in test_stems:
+    if _tem_teste(name, test_stems):
         return SaidaQaAuto001(achados=[]).model_dump()
 
     regra = dados.regra

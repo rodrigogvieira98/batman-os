@@ -37,7 +37,7 @@ class TestRotaNaoDescobrivel:
             "caminho": "frontend/src/App.tsx",
             "conteudo": json.dumps(
                 {
-                    "app_texto": '<Route path="/area-e" element={<Newsletter />} />',
+                    "app_texto": '<Route path="/newsletter" element={<Newsletter />} />',
                     "nav_textos": ["nada relacionado aqui"],
                 }
             ),
@@ -51,8 +51,8 @@ class TestRotaNaoDescobrivel:
             "caminho": "frontend/src/App.tsx",
             "conteudo": json.dumps(
                 {
-                    "app_texto": '<Route path="/area-e" element={<Newsletter />} />',
-                    "nav_textos": ["<Link to='/area-e'>Newsletter</Link>"],
+                    "app_texto": '<Route path="/newsletter" element={<Newsletter />} />',
+                    "nav_textos": ["<Link to='/newsletter'>Newsletter</Link>"],
                 }
             ),
             "regra": _regra(),

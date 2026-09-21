@@ -6,7 +6,7 @@
     "categoria": "regra-de-negocio",
     "titulo": "Penalidade de diversificação do motor (MOTOR_CAP01) sem comunicação ao usuário",
     "causa": "MOTOR_CAP01 penaliza progressivamente tickers com muitos sinais na semana. O usuário vê menos sinais de RDOR3 sem entender o motivo. Parece inconsistência ou bug — gera desconfiança. Regra de negócio invisível é má experiência de produto.",
-    "remediacao": "Exibir na tela de sinais/area-c uma nota explicativa sobre diversificação do portfólio. Ex: tooltip 'O radar limita concentração em um único ativo para proteger seu portfólio'. DoD: MOTOR_CAP01 tem representação explicativa visível ao usuário.",
+    "remediacao": "Exibir na tela de sinais/oportunidades uma nota explicativa sobre diversificação do portfólio. Ex: tooltip 'O radar limita concentração em um único ativo para proteger seu portfólio'. DoD: MOTOR_CAP01 tem representação explicativa visível ao usuário.",
     "pattern": "MOTOR_CAP01|diversif|penalidade|diversity_gate",
     "ignore_case": true
   },

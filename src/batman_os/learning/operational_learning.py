@@ -32,22 +32,64 @@ class PontoCognitiveDebt(BaseModel):
     proporcao_autonoma: float
 
 
+class LeituraCognitiveDebt(BaseModel):
+    """Cognitive Debt COM a cobertura que o torna interpretável.
+
+    ⚠️ Existe porque a versão anterior devolvia `0.0` quando não havia
+    registro — e `0.0` significa *"toda missão resolvida autonomamente"*.
+    Ou seja: **ausência de dado lia como autonomia perfeita**, dentro do KPI
+    cuja função é medir autonomia. "Nunca tentou" e "acertou tudo" produziam
+    o mesmo número, e o segundo é o que alguém publicaria num relatório.
+
+    A taxa isolada não basta nem quando há dados: `proporcao_nao_autonoma`
+    responde *"das missões que rodaram, quantas precisaram de fora?"* e não
+    diz nada sobre quantas deveriam ter rodado. Por isso `total_missoes`
+    viaja junto — quem lê precisa dos dois para saber se o número vale algo.
+    """
+
+    mission_type: MissionTypeId
+    total_missoes: int
+    #: `None` = NO_DATA. Nunca 0.0 por ausência — só por medição.
+    proporcao_nao_autonoma: float | None
+
+    @property
+    def sem_dados(self) -> bool:
+        return self.proporcao_nao_autonoma is None
+
+
 def cognitive_debt_por_tipo(
     registros: list[OperationalRecord], mission_type: MissionTypeId
-) -> float:
+) -> float | None:
     """Vol.VI Cap.26, secao 26.4 (AT-26.1) — Cognitive Debt (Vol.I Cap.4,
     secao 4.9.1) isolado por `MissionTypeId`, nunca apenas agregado
     globalmente — é o que permite distinguir estagnação legítima de um
     domínio maduro de um gargalo real de governança (secao 26.4, nota
-    crítica). Retorna a proporção NÃO autônoma (0.0 = toda missão
-    autônoma; 1.0 = nenhuma)."""
+    crítica).
+
+    Retorna a proporção NÃO autônoma (0.0 = toda missão autônoma; 1.0 =
+    nenhuma) — ou **`None` quando não há registro do tipo**, que é NO_DATA e
+    não zero. Ver `LeituraCognitiveDebt` para o motivo: `0.0` por ausência é
+    falha silenciosa, porque se lê como sucesso.
+    """
     relevantes = [r for r in registros if r.mission_type == mission_type]
     if not relevantes:
-        return 0.0
+        return None
     nao_autonomos = sum(
         1 for r in relevantes if r.cognitive_debt_flag != CognitiveDebtFlag.AUTONOMOUS
     )
     return nao_autonomos / len(relevantes)
+
+
+def leitura_cognitive_debt(
+    registros: list[OperationalRecord], mission_type: MissionTypeId
+) -> LeituraCognitiveDebt:
+    """A leitura completa: taxa + cobertura, para publicar sem enganar."""
+    relevantes = [r for r in registros if r.mission_type == mission_type]
+    return LeituraCognitiveDebt(
+        mission_type=mission_type,
+        total_missoes=len(relevantes),
+        proporcao_nao_autonoma=cognitive_debt_por_tipo(registros, mission_type),
+    )
 
 
 def trajetoria_cognitive_debt(

@@ -6,7 +6,7 @@
     "categoria": "qualidade",
     "titulo": "Nenhum script de smoke test pós-deploy no repositório",
     "causa": "Sem smoke test, o único sinal de que o deploy funcionou é a ausência de erro imediato — mas falhas em rotas específicas, autenticação ou dados só aparecem quando o usuário acessa. Um script de smoke test básico valida os endpoints críticos em < 30 segundos.",
-    "remediacao": "Criar scripts/smoke_test.sh que testa /health, /api/recurso-a (200) e autenticação (401 sem token). DoD: scripts/smoke_test.sh ou similar presente no repositório.",
+    "remediacao": "Criar scripts/smoke_test.sh que testa /health, /api/sinais (200) e autenticação (401 sem token). DoD: scripts/smoke_test.sh ou similar presente no repositório.",
     "modo": "arquivo-presente"
   },
   "descoberta": {

@@ -5,7 +5,7 @@
     "severidade": "low",
     "categoria": "descobribilidade",
     "titulo": "Rota/feature não referenciada em nav ou CTA de outra tela",
-    "causa": "Features como /retrospectiva, /area-e, /area-e/admin existem como rotas mas não estão no NAV_VIEWER nem em cards de CTA em outras telas. Usuário só descobre digitando a URL — taxa de engajamento próxima de zero. Feature invisível é feature inexistente do ponto de vista do usuário.",
+    "causa": "Features como /retrospectiva, /newsletter, /newsletter/admin existem como rotas mas não estão no NAV_VIEWER nem em cards de CTA em outras telas. Usuário só descobre digitando a URL — taxa de engajamento próxima de zero. Feature invisível é feature inexistente do ponto de vista do usuário.",
     "remediacao": "Toda rota de produto deve ter pelo menos um ponto de entrada na navegação (nav, card de CTA, link em empty state). DoD: nenhuma rota de produto sem referência de entrada além da URL direta."
   },
   "descoberta": {

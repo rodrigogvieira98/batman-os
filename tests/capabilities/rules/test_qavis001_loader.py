@@ -28,4 +28,4 @@ class TestCarregarEspecificacoesQaVis001:
         no spec commitado tem que incluir o domínio nu de produção."""
         specs = carregar_especificacoes_qavis001()
         for item in specs:
-            assert "exemplo.test" in item["descoberta"].get("dominios_proibidos", [])
+            assert "exemplo.group" in item["descoberta"].get("dominios_proibidos", [])

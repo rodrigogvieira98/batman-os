@@ -4,7 +4,7 @@
 Replica `Batman/scan/rules/financial_analyst.py::
 SignificanceWithoutDayClustering`: presença de um t-ingênuo (t do IC via
 raiz(N-3) ou `ttest_1samp` direto na série) E presença de vocabulário de
-retorno/area-b E ausência de qualquer evidência de clusterização por dia
+retorno/mercado E ausência de qualquer evidência de clusterização por dia
 — agregado POR ARQUIVO.
 
 Não generalizada em `regex_sobre_conteudo` — são 3 condições independentes

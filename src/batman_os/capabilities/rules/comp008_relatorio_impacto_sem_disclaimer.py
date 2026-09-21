@@ -4,7 +4,7 @@ disclaimer CVM" (Vol.IV Cap.17).
 Replica `Batman/scan/rules/compliance.py::ImpactReportWithoutDisclaimer`:
 um arquivo é considerado "relatório de impacto por usuário" quando o NOME/
 caminho casa o heurístico de relatório OU quando o CONTEÚDO tem pelo menos
-2 matches de métricas do a seção de métricas da política comercial do tenant — e dispara quando
+2 matches de métricas do §10 do plano de monetização — e dispara quando
 falta o disclaimer CVM no mesmo arquivo.
 
 Não generalizada em `regex_sobre_conteudo` — a CONTAGEM de matches
@@ -60,7 +60,7 @@ class RegraComp008Spec(BaseModel):
     categoria: str = CATEGORIA
     titulo: str = "Relatório de impacto por usuário sem disclaimer CVM"
     causa: str = (
-        "Política comercial do tenant, relatório periódico de valor: "
+        "ADR 0023 / plano de monetização §10 (Relatório mensal de valor): "
         "todo relatório de impacto por usuário (sinais recebidos/operados, "
         "disciplina, erros evitados, horas economizadas etc.) é histórico de "
         "uso, NUNCA promessa de rentabilidade (P5) — precisa do disclaimer "

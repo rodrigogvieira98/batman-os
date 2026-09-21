@@ -4,9 +4,9 @@
     "agente": "compliance",
     "severidade": "high",
     "categoria": "cvm-copy-monetizacao",
-    "titulo": "Copy proibida: comparação com indexadores de renda fixa ou preço por % de patrimônio",
-    "causa": "ADR de política comercial do tenant e o P1 do plano de produto abolem qualquer fórmula de preço como percentual do patrimônio e proíbem comparar o produto com indexadores de renda fixa em copy — o benchmark competitivo é TradingView/Profit/research, nunca a renda fixa. Essa comparação também aproxima de promessa de rentabilidade (vedada pela CVM).",
-    "remediacao": "Reescrever a copy sem comparar com indexadores de renda fixa e sem derivar preço/selo de percentual de patrimônio — usar o modelo de valor percebido do ADR de política comercial do tenant (selo de capital, §7 do plano: k × mensalidade). DoD: grep zerado fora de pages/admin/.",
+    "titulo": "Copy proibida: comparação com Selic/CDI/poupança ou preço por % de patrimônio",
+    "causa": "ADR 0023 (Duas Jornadas de Monetização) e o P1 do plano de produto abolem qualquer fórmula de preço como percentual do patrimônio e proíbem comparar o produto com Selic/CDI/poupança em copy — o benchmark competitivo é TradingView/Profit/research, nunca a renda fixa. Essa comparação também aproxima de promessa de rentabilidade (vedada pela CVM).",
+    "remediacao": "Reescrever a copy sem comparar com Selic/CDI/poupança e sem derivar preço/selo de percentual de patrimônio — usar o modelo de valor percebido do ADR 0023 (selo de capital, §7 do plano: k × mensalidade). DoD: grep zerado fora de pages/admin/.",
     "modo": "presenca",
     "pattern": "rende(r|ria)?[^\\S\\n]+mais[^\\S\\n]+que|supera(r)?[^\\S\\n]+(a[^\\S\\n]+)?(selic|cdi)|bate(r)?[^\\S\\n]+(a[^\\S\\n]+|o[^\\S\\n]+)?(selic|cdi|poupan[cç]a)|melhor[^\\S\\n]+que[^\\S\\n]+(a[^\\S\\n]+|o[^\\S\\n]+)?(selic|cdi|poupan[cç]a)|acima[^\\S\\n]+d[ao][^\\S\\n]+(selic|cdi)|deixar[^\\S\\n]+(o[^\\S\\n]+dinheiro[^\\S\\n]+|seu[^\\S\\n]+dinheiro[^\\S\\n]+)?parado|(?m:^(?=.*((%|percentual)[^\\n.]{0,40}patrim[oô]nio|patrim[oô]nio[^\\n.]{0,40}(%|percentual)))(?=.*(mensalidade|assinatura|pre[cç]o|selo|plano)))",
     "ignore_case": true

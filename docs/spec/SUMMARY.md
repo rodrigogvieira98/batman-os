@@ -63,6 +63,7 @@
 30. [Observability Engine](./07-governance/04-observability-engine.md)
     - [ADR-0012 — Governance Engine sem autoridade executiva direta](./07-governance/ADR/ADR-0012-governance-no-direct-authority.md)
     - [ADR-0013 — Política de LLM Escalation como artefato único e revisável](./07-governance/ADR/ADR-0013-llm-policy-single-artifact.md)
+    - [ADR-0018 — `GovernanceEngine.resolve` é superfície intra-ciclo](./07-governance/ADR/ADR-0018-resolve-superficie-intra-ciclo.md)
 
 ## Volume VIII — Infrastructure ✅ (este commit)
 

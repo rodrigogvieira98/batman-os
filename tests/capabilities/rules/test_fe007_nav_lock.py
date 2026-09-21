@@ -31,11 +31,11 @@ def _regra() -> dict[str, object]:
 
 _NAV_VIEWER_COMPLETO = (
     "const NAV_VIEWER = [\n"
-    "  { to: '/area-a' },\n"
-    "  { to: '/area-b' },\n"
-    "  { to: '/area-c' },\n"
-    "  { to: '/area-d' },\n"
-    "  { to: '/area-e' },\n"
+    "  { to: '/investidor' },\n"
+    "  { to: '/mercado' },\n"
+    "  { to: '/oportunidades' },\n"
+    "  { to: '/simulacoes' },\n"
+    "  { to: '/newsletter' },\n"
     "];\n"
 )
 
@@ -44,7 +44,9 @@ class TestNavLock:
     def test_dispara_quando_rota_canonica_removida(self) -> None:
         entrada = {
             "caminho": "frontend/src/components/Layout.tsx",
-            "conteudo": ("const NAV_VIEWER = [\n  { to: '/area-a' },\n  { to: '/area-b' },\n];\n"),
+            "conteudo": (
+                "const NAV_VIEWER = [\n  { to: '/investidor' },\n  { to: '/mercado' },\n];\n"
+            ),
             "regra": _regra(),
         }
         saida = avaliar_fe007(entrada, _contexto())
@@ -80,7 +82,7 @@ class TestNavLock:
 
     def test_produz_multiplos_achados_para_multiplos_blocos_com_falta(self) -> None:
         conteudo = (
-            "const NAV_VIEWER = [\n  { to: '/area-a' },\n];\n"
+            "const NAV_VIEWER = [\n  { to: '/investidor' },\n];\n"
             "const NAV_ADMIN = [\n  { to: '/admin' },\n];\n"
         )
         entrada = {

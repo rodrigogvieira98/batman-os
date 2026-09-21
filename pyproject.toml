@@ -1,5 +1,7 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+# ⚠️ 77 e o piso do PEP 639 (`license` como string SPDX + `license-files`).
+# A forma antiga, `license = {file = "LICENSE"}`, esta depreciada desde a 78.
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +9,15 @@ name = "batman-os"
 version = "0.1.0"
 description = "Batman OS — Sistema Operacional Cognitivo Determinístico"
 requires-python = ">=3.11"
+# ⚠️ Ate 11/09 o projeto NAO declarava licenca nenhuma, e o arquivo `LICENSE`
+# so existia no repositorio publico -- a arvore viva ficou sem ele quando as
+# duas historias divergiram. Projeto sem licenca declarada e ambiguo mesmo
+# sendo privado: quem herda nao sabe o que pode fazer com o codigo.
+#
+# ⚠️ SPDX como string, sem o classifier `License :: OSI Approved ::` -- o PEP
+# 639 depreciou o classifier, e declarar os dois e declarar duas vezes.
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = [
     "pydantic>=2.6",
     "anthropic>=0.40",
@@ -85,3 +96,8 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# ⚠️ Linhas CAPTURADAS do `auth.log`, nao escritas. Quebrar uma para caber em
+# 100 colunas mudaria o gabarito que o teste existe para prender.
+"tests/observe/janela_real_ssh.py" = ["E501"]

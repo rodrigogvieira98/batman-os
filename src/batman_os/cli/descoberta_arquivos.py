@@ -1350,23 +1350,111 @@ def _resultado_qaauto003(root: Path, descoberta: dict[str, Any]) -> list[tuple[s
     return [(caminho_relatorio, json.dumps(payload))]
 
 
+#: Quantos dias distintos de abertura equivalem a "1 sessão" para o GOVDEBT-001
+#: quando a fonte é o inbox. Ver `_ledger_do_inbox`.
+_DIAS_POR_SESSAO_GOVDEBT = 1
+
+
+def _ledger_do_inbox(root: Path) -> dict[str, Any] | None:
+    """Monta o `ledger` do GOVDEBT-001 a partir do `InboxStore`, que é onde a
+    fila de achados vive desde o cutover do Batman legado.
+
+    ⚠️ Por que existe (medido em 2026-09-04): o GOVDEBT-001 lia
+    `Batman/ledger.json` e `Batman/config/deferred.json`. O diretório `Batman/`
+    foi DELETADO no cutover `4d333f21` (2026-07-23). Os arquivos não existem, a
+    descoberta devolvia `conteudo=None` e o handler retornava lista vazia — a
+    regra que escala a HIGH um achado sem decisão após 2 sessões reportava
+    **0 achados enquanto havia 434 aguardando decisão**. A casca da regra foi
+    migrada no cutover; a fonte que ela lê, não. É o ponteiro que sobrevive ao
+    sistema aposentado.
+
+    O formato de saída é o MESMO que o handler já consome (`entries[fp] =
+    {status, sessoes_aberto, codigo, agente, titulo, descricao}`), então o
+    handler não muda — só passa a receber dado real.
+
+    ⚠️ **`sessoes_aberto` é uma APROXIMAÇÃO declarada.** O inbox não guarda
+    contagem de sessões: guarda `criado_em`. O número aqui são **dias
+    distintos** desde a criação, seguindo o precedente da casa (o historian do
+    SuperMan contava dias únicos, não execuções, "para evitar inflação" —
+    múltiplos scans no mesmo dia contariam como vários). A consequência é que a
+    régua fica mais FROUXA que a original, nunca mais apertada: um achado
+    criado hoje não escala, mesmo que o scan rode dez vezes.
+    """
+    caminho = Path(root) / ".batman-os" / "estado.db"
+    if not caminho.exists():
+        return None
+
+    import sqlite3
+    from datetime import UTC, datetime
+
+    try:
+        con = sqlite3.connect(f"file:{caminho}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return None
+    try:
+        linhas = con.execute(
+            "select id, titulo, detalhe, criado_em, status from inbox_achados"
+        ).fetchall()
+    except sqlite3.Error:
+        # Banco existe mas não é do inbox (ou schema antigo): tratar como
+        # ausente é melhor que levantar dentro da descoberta.
+        return None
+    finally:
+        con.close()
+
+    agora = datetime.now(UTC)
+    entries: dict[str, Any] = {}
+    for ident, titulo, detalhe, criado_em, status in linhas:
+        if status != "novo":
+            continue  # tratado/deferido/resolvido já TÊM decisão
+        try:
+            nascido = datetime.fromisoformat(str(criado_em))
+            if nascido.tzinfo is None:
+                nascido = nascido.replace(tzinfo=UTC)
+            dias = max(0, (agora.date() - nascido.date()).days)
+        except (TypeError, ValueError):
+            dias = 0
+        titulo_txt = str(titulo or "")
+        codigo = titulo_txt.split(" ", 1)[0] if titulo_txt else "?"
+        entries[str(ident)] = {
+            "status": "open",
+            "sessoes_aberto": dias // _DIAS_POR_SESSAO_GOVDEBT,
+            "codigo": codigo,
+            "agente": "inbox",
+            "titulo": titulo_txt,
+            "descricao": str(detalhe or ""),
+        }
+    return {"entries": entries}
+
+
 def _resultado_govdebt001(root: Path, descoberta: dict[str, Any]) -> list[tuple[str, str | None]]:
-    """1 única Missão: empacota `Batman/ledger.json` (parseado) + a lista
-    de códigos com deferimento explícito (`Batman/config/deferred.json`,
-    chaves de `deferred`) como JSON. Se `ledger.json` não existe ou é
-    ilegível, a Missão carrega `conteudo=None` (replica o `return`
-    antecipado do legado)."""
+    """1 única Missão: empacota o ledger de achados + os códigos com
+    deferimento explícito, como JSON.
+
+    A fonte do ledger é, nesta ordem: (1) `ledger_path` legado, se existir —
+    preserva o comportamento de quem ainda tem o arquivo; (2) o `InboxStore`
+    do próprio repositório escaneado, que é onde a fila vive desde o cutover.
+    Sem nenhuma das duas, a Missão carrega `conteudo=None` e o handler devolve
+    lista vazia, como antes.
+    """
     ledger_path = descoberta.get("ledger_path", "Batman/ledger.json")
     deferred_path = descoberta.get("deferred_path", "Batman/config/deferred.json")
     caminho_relatorio = descoberta.get("caminho_relatorio", ledger_path)
 
+    ledger: dict[str, Any] | None = None
     texto_ledger = _ler_ou_marcar_presente(root, ledger_path)
-    if not texto_ledger:
-        return [(caminho_relatorio, None)]
+    if texto_ledger:
+        try:
+            ledger = json.loads(texto_ledger)
+        except json.JSONDecodeError:
+            ledger = None
 
-    try:
-        ledger = json.loads(texto_ledger)
-    except json.JSONDecodeError:
+    if ledger is None and descoberta.get("usar_inbox", True):
+        ledger = _ledger_do_inbox(root)
+        if ledger is not None:
+            caminho_relatorio = descoberta.get("caminho_relatorio", ".batman-os/estado.db")
+
+    if ledger is None:
         return [(caminho_relatorio, None)]
 
     deferred_codes: list[str] = []
@@ -1824,7 +1912,7 @@ def _resultado_playwright(root: Path, descoberta: dict[str, Any]) -> list[tuple[
     timeout do Windows) via os parâmetros `cwd`/`env_extra`.
 
     **NUNCA roda contra PRODUÇÃO**: se `base_url` resolver para um domínio
-    em `dominios_proibidos` (default: `exemplo.test`, o domínio nu de
+    em `dominios_proibidos` (default: `exemplo.group`, o domínio nu de
     produção), a checagem é recusada ANTES de invocar qualquer subprocess
     — o handler (`qavis001_playwright_falhou.py`) só recebe
     `bloqueado_prd=True` e emite um achado de configuração."""
@@ -1833,7 +1921,7 @@ def _resultado_playwright(root: Path, descoberta: dict[str, Any]) -> list[tuple[
     base_url = descoberta.get("base_url") or os.environ.get(
         descoberta.get("base_url_env", "BATMAN_QAVIS_BASE_URL"), ""
     )
-    dominios_proibidos = descoberta.get("dominios_proibidos", ["exemplo.test"])
+    dominios_proibidos = descoberta.get("dominios_proibidos", ["exemplo.group"])
 
     if not base_url:
         # sem base_url configurado -- config ausente, nao achado (mesmo

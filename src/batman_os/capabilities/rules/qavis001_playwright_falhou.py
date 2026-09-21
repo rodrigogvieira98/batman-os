@@ -18,11 +18,11 @@ Cuidados obrigatórios (lições registradas no Plano Cobertura Total):
   interpretada.py`).
 - **Nunca contra PRD**: a descoberta (`cli/descoberta_arquivos.py::
   _resultado_playwright`) recusa rodar se `base_url` resolver para o
-  domínio de produção nu (`exemplo.test`) — o handler aqui só recebe
+  domínio de produção nu (`exemplo.group`) — o handler aqui só recebe
   o resultado já bloqueado (`bloqueado_prd=True`) e emite um achado de
   configuração, nunca chega a invocar o navegador contra PRD.
 - **Conta de teste isenta**: já existe no repositório alvo (specs do
-  radar usam `qa-viewer@exemplo.test`) — responsabilidade dos
+  radar usam `qa-viewer@exemplo.group`) — responsabilidade dos
   próprios specs `.spec.ts`, não deste handler.
 
 O `subprocess` em si é executado por `cli/descoberta_arquivos.py`
@@ -207,8 +207,8 @@ def avaliar_qavis001(entrada: Any, contexto: ExecutionContext) -> Any:
             regra,
             dados.caminho,
             "qa-visual configurado com base_url de PRODUÇÃO — execução BLOQUEADA "
-            "(qa-visual nunca roda contra exemplo.test; aponte para "
-            "staging.exemplo.test ou um ambiente local)",
+            "(qa-visual nunca roda contra exemplo.group; aponte para "
+            "staging.exemplo.group ou um ambiente local)",
             _CHAVE_BLOQUEADO_PRD,
             severidade="low",
         )
@@ -367,7 +367,7 @@ def construir_implementacao() -> CapabilityImplementation:
                 "stdout": "",
                 "stderr": "",
                 "bloqueado_prd": True,
-                "base_url": "https://exemplo.test",
+                "base_url": "https://exemplo.group",
             }
         ),
         "regra": _regra_teste,
