@@ -9,12 +9,38 @@ determinística não decide.
 
 🇧🇷 **Português** · 🇪🇸 [Español](README.es.md) · 🇺🇸 [English](README.en.md)
 
+---
+
+### ⚠️ O que este repositório é, e o que ele não é
+
+Esta é uma **vitrine curada**, não um espelho do repositório de trabalho. A
+diferença importa para quem lê o código:
+
+* **O que está aqui é o método**: a especificação (39 capítulos, 18 ADRs, 6
+  adendos), o motor de scan com as 283 specs de regra, o kernel, o runtime, as
+  capabilities, a governança de alerta e os testes disso.
+* **O monitor de infraestrutura não é publicado.** O sistema roda em produção
+  contra uma VPS real, a cada 5 minutos, e o conjunto de regras vivo carrega os
+  **limiares** — quantas respostas 404 caracterizam varredura, quantos caminhos
+  de sonda disparam alerta, que regras estão em observação. Publicar isso seria
+  publicar o mapa de como passar abaixo do radar daquela máquina.
+* **O que existe aqui de `observe/` é um corte de 2026-08-25** e não é mantido:
+  ele foi publicado antes de a política acima ser escrita. Leia-o como história,
+  não como o que roda hoje.
+
+O deploy, os runbooks, o backlog e o programa de resposta a incidente também
+ficam de fora — runbook sanitizado ainda ensina a topologia, e o backlog narra
+incidentes reais com data.
+
+*Atualizado em 2026-09-22.*
+
+
 > "Um sistema inteligente não é aquele que responde todas as perguntas. É aquele que
 > reduz continuamente a quantidade de perguntas que precisam ser feitas."
 
 | | |
 |---|---|
-| **165+ commits** · autor único | **1.500+ testes** de aceitação, um por capítulo da spec |
+| **176 commits** · autor único | **1.690 testes**, executados no CI deste repositório |
 | **283 specs** de regra | `mypy --strict` e `ruff` limpos, bloqueantes no CI |
 | **39 capítulos** de especificação escrita antes do código | roda em produção contra um produto real, a cada 5 minutos |
 
@@ -152,7 +178,7 @@ consertos de QA-RUN/SD/FUI); Ondas 2 (`sec-dinamica`, `infra-sentinela`,
 `dep-auditoria`) e 3 (`gov-verdade`, `ml-guarda`, integração ao CI) **abertas**.
 O roadmap de plataforma acima está encerrado e não é mais a direção do trabalho.
 
-**Hoje: 1.510 testes, 283 specs de regra, `mypy --strict`/`ruff` limpos.**
+**Nesta vitrine: 1.690 testes, 283 specs de regra, `mypy --strict`/`ruff` limpos.**
 
 **Portão local** (`scripts/git-hooks/pre-push`): `pytest` · `mypy src/ tests/` ·
 `ruff check` · `ruff format --check` · **`scripts/verificar_head_autocontido.sh`**.
@@ -208,7 +234,7 @@ atual é preservada o máximo possível:
 | Termo oficial da spec (imutável) | Nomenclatura do Batman atual preservada como... |
 |---|---|
 | `Mission`, `Capability`, `Skill`, `Operator`, `Workflow`, `Playbook`, `Knowledge Asset`, `Decision`, `Event` | — núcleo do Kernel, fixado pelo Cap.4 |
-| — | CLI continua `batman`, mesmos subcomandos (`scan`, `patrol`, `sweep`, `fp`, `agents`, `init`) |
+| — | CLI continua `batman`. Os subcomandos do Batman legado (`patrol`, `sweep`, `fp`, `agents`, `init`) **não foram portados**: viraram `scan`, `monitor`, `observe` e `inbox` |
 | — | **"Alfred"** — nome do Operador/Capability de relatório e observabilidade |
 | — | **"Robin"** — nome do Operador dinâmico que roda testes de verdade |
 | — | Os **46 "agentes"** atuais (`sre`, `security_engineer`, `ai_engineer`, `vps_infra`, `ethical_hacker`, `red_team`, ...) viram os nomes dos 46 Operadores |

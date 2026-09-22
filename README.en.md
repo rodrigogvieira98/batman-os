@@ -9,12 +9,38 @@ decide.
 
 🇧🇷 [Português](README.md) · 🇪🇸 [Español](README.es.md) · 🇺🇸 **English**
 
+---
+
+### ⚠️ What this repository is, and what it is not
+
+This is a **curated showcase**, not a mirror of the working repository. The
+difference matters when you read the code:
+
+* **What is here is the method**: the specification (39 chapters, 18 ADRs, 6
+  addenda), the scan engine with its 283 rule specs, the kernel, the runtime,
+  the capabilities, alert governance, and the tests for those.
+* **The infrastructure monitor is not published.** The system runs in production
+  against a real VPS every 5 minutes, and the live ruleset carries the
+  **thresholds** — how many 404s characterise a scan, how many probe paths
+  trigger an alert, which rules are still under observation. Publishing that
+  would publish the map of how to stay under that machine's radar.
+* **What is here under `observe/` is a 2026-08-25 snapshot** and is not
+  maintained: it was published before the policy above was written. Read it as
+  history, not as what runs today.
+
+Deployment, runbooks, the backlog and the incident-response programme are also
+left out — a sanitised runbook still teaches the topology, and the backlog
+narrates real incidents with dates.
+
+*Updated on 2026-09-22.*
+
+
 > "An intelligent system is not the one that answers every question. It is the one that
 > continuously reduces the number of questions that need to be asked."
 
 | | |
 |---|---|
-| **165+ commits**, single author | **1,500+ acceptance tests**, one per specification chapter |
+| **176 commits**, single author | **1,690 tests**, run by this repository's CI |
 | **283 rule specs** | `mypy --strict` and `ruff` clean, blocking in CI |
 | **39 chapters** of specification written before the code | runs in production against a real product, every 5 minutes |
 

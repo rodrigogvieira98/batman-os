@@ -9,12 +9,39 @@ determinista no decide.
 
 🇧🇷 [Português](README.md) · 🇪🇸 **Español** · 🇺🇸 [English](README.en.md)
 
+---
+
+### ⚠️ Qué es este repositorio, y qué no es
+
+Esta es una **vitrina curada**, no un espejo del repositorio de trabajo. La
+diferencia importa para quien lee el código:
+
+* **Lo que está aquí es el método**: la especificación (39 capítulos, 18 ADRs, 6
+  adendas), el motor de scan con sus 283 specs de regla, el kernel, el runtime,
+  las capabilities, la gobernanza de alerta y sus pruebas.
+* **El monitor de infraestructura no se publica.** El sistema corre en
+  producción contra una VPS real, cada 5 minutos, y el conjunto de reglas vivo
+  lleva los **umbrales** — cuántas respuestas 404 caracterizan un barrido,
+  cuántas rutas de sonda disparan alerta, qué reglas siguen en observación.
+  Publicarlo sería publicar el mapa de cómo pasar por debajo del radar de esa
+  máquina.
+* **Lo que hay aquí de `observe/` es un corte del 2026-08-25** y no se mantiene:
+  fue publicado antes de que la política anterior fuera escrita. Léelo como
+  historia, no como lo que corre hoy.
+
+El deploy, los runbooks, el backlog y el programa de respuesta a incidentes
+también quedan fuera — un runbook saneado sigue enseñando la topología, y el
+backlog narra incidentes reales con fecha.
+
+*Actualizado el 2026-09-22.*
+
+
 > "Un sistema inteligente no es el que responde todas las preguntas. Es el que reduce
 > continuamente la cantidad de preguntas que hay que hacer."
 
 | | |
 |---|---|
-| **165+ commits**, autor único | **1.500+ pruebas** de aceptación, una por capítulo de la especificación |
+| **176 commits**, autor único | **1.690 pruebas**, ejecutadas por el CI de este repositorio |
 | **283 especificaciones** de regla | `mypy --strict` y `ruff` limpios, bloqueantes en CI |
 | **39 capítulos** de especificación escritos antes del código | corre en producción contra un producto real, cada 5 minutos |
 
